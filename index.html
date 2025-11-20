@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colleen Barrel Racing</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      background-image: url('grizzlies_paw.png');
+      background-repeat: repeat;
+      background-position: 0 0;
+      background-size: min(12vw, 120px) auto;
+      background-attachment: fixed;
+
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding-top: 40px;
+    }
+
+    .container {
+      text-align: center;
+      background: #001f4d;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .link-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .link-list a {
+      display: block;
+      padding: 12px;
+      text-decoration: none;
+      background: #355E3B;
+      color: white;
+      font-weight: bold;
+      font-size: 1.5rem;
+      border-radius: 8px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .link-list a:hover {
+      background: #4C7C50;
+      transform: scale(1.03);
+    }
+
+    .views-counter {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 0.75rem;
+      color: #ccc;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        background-attachment: scroll;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .link-list a {
+        font-size: 1.2rem;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Colleen Barrel Racing Links">
+    <h1>Creekview Grizzlies<br>8th Grade Football</h1>
+
+    <div class="link-list">
+      <a href="Sequoyah.html">Sequoyah - 1/17/2025</a>
+      <a href="Cherokee.html">Cherokee – 7/11/2025</a>
+      <a href="Etowah.html">Etowah - 7/25/2025</a>
+      <a href="River_Ridge.html">River Ridge - 8/8/2025</a>
+      <a href="Sonoraville.html">Sonoraville - 8/15/2025</a>
+      <a href="South_Paulding.html">South Paulding - 9/19/2025</a>
+      <a href="South_Paulding.html">South Paulding - 9/26/2025</a>
+      <a href="South_Paulding.html">South Paulding - 10/10/2025</a>
+      <a href="South_Paulding.html">South Paulding - 10/24/2025</a>
+    </div>
+
+    <div class="views-counter" id="viewCounter">Loading views...</div>
+  </div>
+
+  <script>
+    // --- Firebase Config ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBPJGqsH_pLXffDt6ol3SOxgC9joKUdKm4",
+      authDomain: "footballvideocounter.firebaseapp.com",
+      projectId: "footballvideocounter",
+      storageBucket: "footballvideocounter.appspot.com",
+      messagingSenderId: "126776947656",
+      appId: "1:126776947656:web:cf05806375edaa3c27c6fd"
+    };
+
+    // --- Initialize Firebase ---
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const id = "IndexPage";
+    const counter = document.getElementById("viewCounter");
+    counter.textContent = "Loading views...";
+
+    // --- Increment view count once per page load ---
+    db.runTransaction(async (tx) => {
+      const ref = db.collection("videoPlays").doc(id);
+      const doc = await tx.get(ref);
+      const newCount = (doc.exists ? doc.data().count : 0) + 1;
+      tx.set(ref, { count: newCount });
+      return newCount;
+    })
+    .then((newCount) => {
+      // Temporary update until real-time listener takes over
+      counter.textContent = `Views: ${newCount}`;
+    })
+    .catch((err) => {
+      console.error("Transaction failed:", err);
+      counter.textContent = "Views: N/A";
+    });
+
+    // --- Real-time live updates ---
+    db.collection("videoPlays").doc(id).onSnapshot((doc) => {
+      if (doc.exists) {
+        counter.textContent = `Views: ${doc.data().count}`;
+      } else {
+        counter.textContent = "Views: 0";
+      }
+    });
+  </script>
+</body>
+</html>
